@@ -96,6 +96,21 @@ This will create a money.rb initializer. For now, we can drop in the simplest of
 #### Seeding
     rake import:goodreads
     
+## API versioning
+We need to change our routes
+    
+    namespace :api do
+      namespace :v1 do
+        resources :authors do
+          resources :books
+        end
+      end
+    end
+
+Then move our controllers into app/controllers/api/v1, so that we keep with the Rails convention.
+
+
+
     
         
 ##### Ref: 
