@@ -32,6 +32,73 @@ One of the initializers will come in handy, though: cors.rb. We can uncomment wh
 
 To use this, we need to uncomment rack-cors in the Gemfile.
 
+## Modeling reality
+Thankfully, we have the lovely money-rails gem to take care of that for us. Let’s drop it in right now into our Gemfile and install with bundle install. Afterwards it will need to be initialized with
+    
+    rails g money_rails:initializer
+    
+This will create a money.rb initializer. For now, we can drop in the simplest of configs there:
 
+    MoneyRails.configure do |config|
+      config.default_currency = :usd
+    end
+
+#### Scaffolding
+
+    rails g scaffold Author name:string
+    rails g scaffold Book author:belongs_to title:string price:monetize
+    
+* Notice how we can use `monetize` now as a field type? That’s all `money-rails`    
+    
+    
+    rails db:migrate
+    
+#### Routes
+    Rails.application.routes.draw do
+      resources :authors do
+        resources :books
+      end
+    
+      root to: 'authors#index'
+    end
+    
+#### Controllers
+
+`BooksController`
+    # ...
+    
+      private
+    
+      def set_book
+        @book = @author.books.find(params[:id])
+      end
+    
+      def set_author
+        @author = Author.find(params[:author_id])
+      end
+    
+      # ...    
+
+#### Models
+
+    class Author < ApplicationRecord
+      has_many :books
+    
+      validates :name, presence: true
+    end
+    
+    class Book < ApplicationRecord
+      belongs_to :author
+      monetize :price_cents
+      validates :title, presence: true
+    end
+    
+#### Seeding
+    rake import:goodreads
+    
+    
+        
 ##### Ref: 
     https://paweljw.github.io/2017/07/rails-5.1-api-app-part-1-setting-up-a-rails-api-app/
+    https://paweljw.github.io/2017/07/rails-5.1-api-app-part-2-modeling-reality/
+    
